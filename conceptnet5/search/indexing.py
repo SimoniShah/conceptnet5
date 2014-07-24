@@ -23,6 +23,7 @@ def index_assertions(input_dir, output_dir):
                     end=a['end'],
                     dataset=a['dataset'],
                     sources=' '.join(a['sources']),
+                    weight=a['weight'],
                     filename=filename,
                     offset=offset
                 )

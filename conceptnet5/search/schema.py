@@ -11,5 +11,6 @@ SCHEMA = fields.Schema(
     dataset=fields.TEXT(analyzer=URIAnalyzer(), phrase=False),
     sources=fields.TEXT(analyzer=URIAnalyzer(), phrase=False),
     filename=fields.ID(stored=True),
-    offset=fields.NUMERIC(stored=True)
+    offset=fields.NUMERIC(stored=True),
+    weight=fields.NUMERIC(stored=True)
 )
