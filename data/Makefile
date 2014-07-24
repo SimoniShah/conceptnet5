@@ -148,7 +148,7 @@ DIST_FILES = $(OUTPUT_FOLDER)/$(RAW_DATA_PACKAGE) \
 			 $(OUTPUT_FOLDER)/conceptnet5_db_$(DATE).tar.bz2
 # skip for now: $(OUTPUT_FOLDER)/conceptnet5_vector_space_$(DATE).tar.bz2
 STATS_FILES = stats/relations.txt stats/dataset_languages.txt stats/morestats.txt
-SQLITE_FILE = db/assertions.db
+SEARCH_INDEX_DIR = db/whoosh
 
 # High-level build tasks
 # ======================
@@ -162,7 +162,7 @@ SQLITE_FILE = db/assertions.db
 #     make download all build_assoc upload
 all: build_assertions build_stats build_db
 build_assoc: $(ASSOC_DIR)/u.npy
-build_db: $(SQLITE_FILE)
+build_db: $(SEARCH_INDEX_DIR)
 build_assertions: $(COMBINED_CSVS) $(ASSOC_FILES)
 	# Once the assertions are built, we can benefit from the link pointing
 	# from ~/.conceptnet5 to this directory.
@@ -318,8 +318,8 @@ $(ASSOC_DIR)/u.npy: assoc/all.csv
 	$(PYTHON) -m assoc_space.build_conceptnet $< $(ASSOC_DIR)
 
 # Index the assertions in a SQLite database.
-$(SQLITE_FILE): $(ASSERTION_FILES) $(BUILDERS)/index_assertions.py
-	@mkdir -p db
+$(SEARCH_INDEX_DIR): $(ASSERTION_FILES) $(BUILDERS)/index_assertions.py
+	@mkdir -p $(SEARCH_INDEX_DIR)
 	$(PYTHON) -m conceptnet5.builders.index_assertions assertions/ $@
 
 # The following rules are for building the DIST_FILES to be uploaded.
@@ -331,9 +331,9 @@ $(OUTPUT_FOLDER)/conceptnet5_flat_json_$(DATE).tar.bz2: $(ASSERTION_FILES)
 	@mkdir -p $(OUTPUT_FOLDER)
 	$(TARBALL_CREATE) $@ assertions/*.jsons
 
-$(OUTPUT_FOLDER)/conceptnet5_db_$(DATE).tar.bz2: $(SQLITE_FILE)
+$(OUTPUT_FOLDER)/conceptnet5_db_$(DATE).tar.bz2: $(SEARCH_INDEX_DIR)
 	@mkdir -p $(OUTPUT_FOLDER)
-	$(TARBALL_CREATE) $@ $(SQLITE_FILE)
+	$(TARBALL_CREATE) $@ $(SEARCH_INDEX_DIR)
 
 $(OUTPUT_FOLDER)/conceptnet5_csv_$(DATE).tar.bz2: $(COMBINED_CSVS)
 	@mkdir -p $(OUTPUT_FOLDER)
@@ -379,7 +379,7 @@ stats/concepts.txt: stats/concepts_left_datasets.txt stats/concepts_right_datase
 #	$(CUT) -f 2 stats/concepts.txt | $(TRUNCATE_URIS) | $(COUNT_AND_RANK) > stats/concepts_per_language.txt
 
 stats/dataset_languages.txt: stats/concepts_left_datasets.txt stats/concepts_right_datasets.txt
-	cat $^ | $(TRUNCATE_URIS) | $(SORT) | $(UNIQ) -c > stats/dataset_vs_language.txt
+	cat $^ | $(TRUNCATE_URIS) | $(SORT) | $(UNIQ) -c > stats/dataset_languages.txt
 
 stats/morestats.txt: $(COMBINED_CSVS)
 	@mkdir -p stats
