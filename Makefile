@@ -360,7 +360,7 @@ $(DATA)/assoc/subspaces/%/u.npy: $(DATA)/assoc/%.csv $(BUILDERS)/assoc_to_vector
 
 # Combine all associations into one file.
 $(ASSOC_DIR)/u.npy: $(ASSOC_SUBSPACES)
-	python -m conceptnet5.builders.merge_vector_spaces $(DATA)/assoc/subspaces
+	python -m conceptnet5.builders.merge_vector_spaces $(DATA)/assoc/subspaces $(DATA)/assoc/subspaces/merged_complete
 	rm -rf $(ASSOC_DIR)
 	mv $(DATA)/assoc/subspaces/merged_complete $(ASSOC_DIR)
 
